@@ -116,6 +116,14 @@ public:
   NS_IMETHOD              PlaceBehind(nsTopLevelWidgetZPlacement aPlacement,
                                       nsIWidget *aWidget, bool aActivate) MOZ_OVERRIDE;
 
+  virtual void SetSpace(const char* aSpace) {
+     mSpace = aSpace;
+   }
+ 
+   virtual void GetSpace(char * *aSpace) {
+     *aSpace = ToNewCString(mSpace);
+   }
+
   NS_IMETHOD              SetSizeMode(int32_t aMode) MOZ_OVERRIDE;
   virtual int32_t         SizeMode() MOZ_OVERRIDE
   {
@@ -444,6 +452,7 @@ protected:
   // When this pointer is null, the widget is not clipped
   nsAutoArrayPtr<nsIntRect> mClipRects;
   uint32_t          mClipRectCount;
+  nsAutoCString     mSpace;
   nsSizeMode        mSizeMode;
   nsPopupLevel      mPopupLevel;
   nsPopupType       mPopupType;

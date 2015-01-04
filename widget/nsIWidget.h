@@ -1128,6 +1128,12 @@ class nsIWidget : public nsISupports {
                            nsIWidget *aWidget, bool aActivate) = 0;
 
     /**
+     *
+     */
+    virtual void SetSpace(const char* aSpace) = 0;
+    virtual void GetSpace(char * *aSpace) = 0;
+
+    /**
      * Minimize, maximize or normalize the window size.
      * Takes a value from nsSizeMode (see nsIWidgetListener.h)
      */

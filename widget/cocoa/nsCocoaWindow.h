@@ -285,6 +285,9 @@ public:
     NS_IMETHOD              SetCursor(nsCursor aCursor) MOZ_OVERRIDE;
     NS_IMETHOD              SetCursor(imgIContainer* aCursor, uint32_t aHotspotX, uint32_t aHotspotY) MOZ_OVERRIDE;
 
+    virtual void            SetSpace(const char* aSpace);
+    virtual void            GetSpace(char * *aSpace);
+
     CGFloat                 BackingScaleFactor();
     void                    BackingScaleFactorChanged();
     virtual double          GetDefaultScaleInternal() MOZ_OVERRIDE;

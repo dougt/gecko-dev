@@ -41,6 +41,9 @@
 #include "mozilla/BasicEvents.h"
 #include "mozilla/Preferences.h"
 #include <algorithm>
+#include <dlfcn.h>
+#include <CoreServices/CoreServices.h>
+#include <ApplicationServices/ApplicationServices.h>
 
 namespace mozilla {
 namespace layers {
@@ -94,6 +97,78 @@ static void RollUpPopups()
     return;
   rollupListener->Rollup(0, nullptr, nullptr);
 }
+
+////
+// Heavily based on Chrome's nswindow_additions.  BSD Licensed
+typedef int   CGSWorkspaceID;
+
+typedef CGError (*CGSGetWorkspaceFunc)(CGSConnection cid,
+                                       CGSWorkspaceID* workspace);
+
+typedef CGError (*CGSGetWindowWorkspaceFunc)(CGSConnection cid,
+                                             CGWindowID wid,
+                                             CGSWorkspaceID* workspace);
+
+typedef CGError (*CGSMoveWorkspaceWindowListFunc)(CGSConnection cid,
+                                                  CGWindowID* wid,
+                                                  int count,
+                                                  CGSWorkspaceID workspace);
+
+static CGSGetWorkspaceFunc sCGSGetWorkspace = NULL;
+static CGSGetWindowWorkspaceFunc sCGSGetWindowWorkspace = NULL;
+static CGSMoveWorkspaceWindowListFunc sCGSMoveWorkspaceWindowList = NULL;
+
+static bool InitWorkspaceAPI() {
+
+  static BOOL shouldInitialize = YES;
+
+  if (shouldInitialize) {
+    shouldInitialize = NO;
+
+    NSBundle* coreGraphicsBundle =
+      [NSBundle bundleWithIdentifier:@"com.apple.CoreGraphics"];
+
+    NSString* coreGraphicsPath = [[coreGraphicsBundle bundlePath]
+                                  stringByAppendingPathComponent:@"CoreGraphics"];
+    
+    void* coreGraphicsLibrary = dlopen([coreGraphicsPath UTF8String],
+                                       RTLD_GLOBAL | RTLD_LAZY);
+
+    if (!coreGraphicsLibrary) {
+      printf("Failed to load CoreGraphics lib");
+      return false;
+    }
+
+    sCGSGetWorkspace =
+      (CGSGetWorkspaceFunc)dlsym(coreGraphicsLibrary,
+                                 "CGSGetWorkspace");
+    if (!sCGSGetWorkspace) {
+      printf("Failed to lookup CGSGetWorkspace API");
+      return false;
+    }
+    
+    sCGSGetWindowWorkspace =
+      (CGSGetWindowWorkspaceFunc)dlsym(coreGraphicsLibrary,
+                                       "CGSGetWindowWorkspace");
+    if (!sCGSGetWindowWorkspace) {
+      printf("Failed to lookup CGSGetWindowWorkspace API");
+      return false;
+    }
+
+    sCGSMoveWorkspaceWindowList =
+      (CGSMoveWorkspaceWindowListFunc)dlsym(coreGraphicsLibrary,
+                                            "CGSMoveWorkspaceWindowList");
+    if (!sCGSMoveWorkspaceWindowList) {
+      printf("Failed to lookup CGSMoveWorkspaceWindowList API");
+      return false;
+    }
+  }
+
+  return sCGSGetWindowWorkspace != NULL &&
+    sCGSMoveWorkspaceWindowList != NULL;
+}
+
+////
 
 nsCocoaWindow::nsCocoaWindow()
 : mParent(nullptr)
@@ -1580,6 +1655,58 @@ NS_IMETHODIMP nsCocoaWindow::SetCursor(imgIContainer* aCursor,
     return mPopupContentView->SetCursor(aCursor, aHotspotX, aHotspotY);
 
   return NS_OK;
+}
+
+void nsCocoaWindow::GetSpace(char * *aSpace) {
+  printf("** dougt -- nsCocaoWindow::GetSpace\n");
+  *aSpace = NULL;
+
+  if (!InitWorkspaceAPI()) {
+    return;
+  }
+
+  CGSConnection con = _CGSDefaultConnection();
+  NSInteger windowNumber = [mWindow windowNumber];
+  CGSWorkspaceID a = -1;
+  
+  //  CGError err = sCGSGetWindowWorkspace(con,
+  //                                       windowNumber,
+  //                                       &a);
+
+  CGError err = sCGSGetWorkspace(con,
+                                 &a);
+
+  if (err == 0) {
+    *aSpace = strdup(nsPrintfCString("workspace:%d", a).get());
+  }
+  printf("** dougt -- CGSWorkspaceID = %d, err = %d, windowNumber = %d, space name = %s\n", a, err, windowNumber, *aSpace);
+}
+
+void nsCocoaWindow::SetSpace(const char * aSpace) {
+
+  if (!InitWorkspaceAPI()) {
+    return;
+  }
+
+  CGSConnection con = _CGSDefaultConnection();
+
+  NSInteger windowNumber = [mWindow windowNumber];
+
+  printf("** dougt -- nsCocoaWindow::SetSpace \"%s\". windowNumber = %d\n", aSpace, windowNumber);
+
+  int workspace = -1;
+  int scanRes = PR_sscanf(aSpace, "workspace:%d", &workspace);
+  if (scanRes != 1) {
+    printf("** dougt -- nsCocoaWindow::SetSpace scanf failed\n");
+    return;
+  }
+
+  CGError err = sCGSMoveWorkspaceWindowList(con,
+                                            (CGWindowID*) &windowNumber,
+                                            1,
+                                            workspace);
+  
+  printf("sCGSMoveWorkspaceWindowList -- err %d, workspace = %d\n", err, workspace);
 }
 
 NS_IMETHODIMP nsCocoaWindow::SetTitle(const nsAString& aTitle)

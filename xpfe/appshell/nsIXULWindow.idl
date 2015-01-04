@@ -18,7 +18,7 @@ interface nsIDocShellTreeItem;
 interface nsIXULBrowserWindow;
 interface nsITabParent;
 
-[scriptable, uuid(a68a40b9-f7df-47ff-a874-2af3df7eb888)]
+[scriptable, uuid(E81B4174-AF61-4268-A041-428C56E29A02)]
 interface nsIXULWindow : nsISupports
 {
   /**
@@ -92,6 +92,8 @@ interface nsIXULWindow : nsISupports
   const unsigned long highestZ = 9;
 
   attribute unsigned long zLevel;
+
+  attribute string space;
 
   /**
    * contextFlags are from nsIWindowCreator2

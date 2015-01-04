@@ -57,7 +57,7 @@
         screenX="4" screenY="4"
         fullscreenbutton="true"
         sizemode="normal"
-        persist="screenX screenY width height sizemode">
+        persist="screenX screenY width height sizemode space">
 
 # All JS files which are not content (only) dependent that browser.xul
 # wishes to include *must* go into the global-scripts.inc file

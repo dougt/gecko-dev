@@ -76,6 +76,7 @@ using dom::AutoNoJSAPI;
 #define HEIGHT_ATTRIBUTE   NS_LITERAL_STRING("height")
 #define MODE_ATTRIBUTE     NS_LITERAL_STRING("sizemode")
 #define ZLEVEL_ATTRIBUTE   NS_LITERAL_STRING("zlevel")
+#define SPACE_ATTRIBUTE    NS_LITERAL_STRING("space")
 
 
 //*****************************************************************************
@@ -184,6 +185,16 @@ NS_IMETHODIMP nsXULWindow::GetDocShell(nsIDocShell** aDocShell)
 
   *aDocShell = mDocShell;
   NS_IF_ADDREF(*aDocShell);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsXULWindow::GetSpace(char * *aSpace) {
+  mWindow->GetSpace(aSpace);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsXULWindow::SetSpace(const char * aSpace) {
+  mWindow->SetSpace(aSpace);
   return NS_OK;
 }
 
@@ -1015,6 +1026,18 @@ void nsXULWindow::OnChromeLoaded()
       SetVisibility(true);
       // At this point the window may have been closed during Show(), so
       // nsXULWindow::Destroy may already have been called. Take care!
+
+
+      // The window must be visible before restorying the space
+      // space
+      nsCOMPtr<dom::Element> windowElement = GetWindowDOMElement();
+      if (windowElement) {
+        nsAutoString stateString;
+        windowElement->GetAttribute(SPACE_ATTRIBUTE, stateString);
+        if (!stateString.IsEmpty()) {
+          SetSpace(NS_LossyConvertUTF16toASCII(stateString).get());
+        }
+      }
     }
   }
   mPersistentAttributesMask |= PAD_POSITION | PAD_SIZE | PAD_MISC;
@@ -1532,6 +1555,12 @@ NS_IMETHODIMP nsXULWindow::SavePersistentAttributes()
         docShellElement->SetAttribute(ZLEVEL_ATTRIBUTE, sizeString, rv);
         ownerXULDoc->Persist(windowElementId, ZLEVEL_ATTRIBUTE);
       }
+    }
+    if (persistString.Find("space") >= 0) {
+      nsXPIDLCString val;
+      mWindow->GetSpace(getter_Copies(val));
+      docShellElement->SetAttribute(SPACE_ATTRIBUTE, NS_ConvertASCIItoUTF16(val), rv);
+      ownerXULDoc->Persist(windowElementId, SPACE_ATTRIBUTE);
     }
   }
 

@@ -36,7 +36,7 @@ const OBSERVING = [
 
 // XUL Window properties to (re)store
 // Restored in restoreDimensions()
-const WINDOW_ATTRIBUTES = ["width", "height", "screenX", "screenY", "sizemode"];
+const WINDOW_ATTRIBUTES = ["width", "height", "screenX", "screenY", "sizemode", "space"];
 
 // Hideable window features to (re)store
 // Restored in restoreWindowFeatures()
@@ -153,7 +153,7 @@ XPCOMUtils.defineLazyModuleGetter(this, "Utils",
  * |true| if we are in debug mode, |false| otherwise.
  * Debug mode is controlled by preference browser.sessionstore.debug
  */
-let gDebuggingEnabled = false;
+let gDebuggingEnabled = true;
 function debug(aMsg) {
   if (gDebuggingEnabled) {
     aMsg = ("SessionStore: " + aMsg).replace(/\S{80}/g, "$&\n");
@@ -2774,12 +2774,14 @@ let SessionStoreInternal = {
 
     var _this = this;
     aWindow.setTimeout(function() {
+    debug('in timer...');
       _this.restoreDimensions.apply(_this, [aWindow,
         +(aWinData.width || 0),
         +(aWinData.height || 0),
         "screenX" in aWinData ? +aWinData.screenX : NaN,
         "screenY" in aWinData ? +aWinData.screenY : NaN,
-        aWinData.sizemode || "", aWinData.sidebar || ""]);
+        aWinData.sizemode || "", aWinData.sidebar || "",
+        "space" in aWinData ?   +aWinData.space : NaN]);
     }, 0);
   },
 
@@ -2798,9 +2800,12 @@ let SessionStoreInternal = {
    * @param aSidebar
    *        Sidebar command
    */
-  restoreDimensions: function ssi_restoreDimensions(aWindow, aWidth, aHeight, aLeft, aTop, aSizeMode, aSidebar) {
+  restoreDimensions: function ssi_restoreDimensions(aWindow, aWidth, aHeight, aLeft, aTop, aSizeMode, aSidebar, aSpace) {
     var win = aWindow;
     var _this = this;
+
+    debug("dougt -- restoreDimensions called -- space is - "+ aWindow.space);
+
     function win_(aName) { return _this._getWindowDimension(win, aName); }
 
     // find available space on the screen where this window is being placed

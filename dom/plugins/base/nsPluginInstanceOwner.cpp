@@ -1550,6 +1550,14 @@ nsresult nsPluginInstanceOwner::DispatchKeyToPlugin(nsIDOMEvent* aKeyEvent)
     WidgetKeyboardEvent* keyEvent =
       aKeyEvent->GetInternalNSEvent()->AsKeyboardEvent();
     if (keyEvent && keyEvent->mClass == eKeyboardEventClass) {
+
+#if defined(XP_MACOSX)
+      // Make sure that CMD keys do not go into the plugin.
+      const uint32_t NSCommandKeyMask = 1 << 20;
+      if (keyEvent->mNativeModifierFlags & NSCommandKeyMask) {
+        return NS_OK;
+      }
+#endif
       nsEventStatus rv = ProcessEvent(*keyEvent);
       if (nsEventStatus_eConsumeNoDefault == rv) {
         aKeyEvent->PreventDefault();

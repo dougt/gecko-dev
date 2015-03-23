@@ -105,6 +105,7 @@ interface nsIServiceWorkerManager : nsISupports
   DOMString getScopeForUrl(in DOMString path);
 
   void sendPushEvent(in ACString scope, in DOMString data);
+  void sendPushSubscriptionChangedEvent(in ACString scope);
 };
 
 %{ C++

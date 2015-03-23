@@ -423,6 +423,23 @@ IDBFactory::AllowedForWindowInternal(nsPIDOMWindow* aWindow,
   return NS_OK;
 }
 
+// static
+bool
+IDBFactory::AllowedForPrincipal(nsIPrincipal *aPrincipal)
+{
+  MOZ_ASSERT(NS_IsMainThread());
+  MOZ_ASSERT(aPrincipal);
+
+  bool isNullPrincipal;
+  if (NS_WARN_IF(NS_FAILED(aPrincipal->GetIsNullPrincipal(&isNullPrincipal))) ||
+      isNullPrincipal ||
+      NS_WARN_IF(!IndexedDatabaseManager::GetOrCreate())) {
+    return false;
+  }
+
+  return true;
+}
+
 #ifdef DEBUG
 
 void

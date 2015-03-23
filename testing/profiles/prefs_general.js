@@ -318,3 +318,6 @@ user_pref("network.proxy.pac_generator", false);
 // selected by default).
 user_pref("lightweightThemes.selectedThemeID", "");
 user_pref("browser.devedition.theme.enabled", false);
+
+// Enable Push
+user_pref("dom.push.enabled", true);

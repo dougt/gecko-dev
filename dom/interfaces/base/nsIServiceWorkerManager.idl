@@ -19,7 +19,7 @@ interface nsIServiceWorkerUnregisterCallback : nsISupports
   [noscript] void UnregisterFailed();
 };
 
-[builtinclass, uuid(e4c8baa5-237a-4bf6-82d4-ea06eb4b76ba)]
+[scriptable, builtinclass, uuid(760357ca-d121-4d57-a32f-442c1035ba3f)]
 interface nsIServiceWorkerManager : nsISupports
 {
   /**
@@ -103,6 +103,8 @@ interface nsIServiceWorkerManager : nsISupports
 
   // Testing
   DOMString getScopeForUrl(in DOMString path);
+
+  void sendPushEvent(in ACString scope, in DOMString data);
 };
 
 %{ C++

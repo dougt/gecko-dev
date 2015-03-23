@@ -4626,6 +4626,7 @@ WorkerPrivate::WorkerPrivate(JSContext* aCx,
   , mPeriodicGCTimerRunning(false)
   , mIdleGCTimerRunning(false)
   , mWorkerScriptExecutedSuccessfully(false)
+  , mPerformingMicroTasks(false)
 {
   MOZ_ASSERT_IF(!IsDedicatedWorker(), !aSharedWorkerName.IsVoid());
   MOZ_ASSERT_IF(IsDedicatedWorker(), aSharedWorkerName.IsEmpty());
@@ -5202,8 +5203,10 @@ WorkerPrivate::DoRunLoop(JSContext* aCx)
 
       // Only perform the Promise microtask checkpoint on the outermost event
       // loop.  Don't run it, for example, during sync XHR or importScripts.
+      mPerformingMicroTasks = true;
       (void)Promise::PerformMicroTaskCheckpoint();
-
+      mPerformingMicroTasks = false;
+ 
       normalRunnablesPending = NS_HasPendingEvents(mThread);
       if (normalRunnablesPending && GlobalScope()) {
         // Now *might* be a good time to GC. Let the JS engine make the decision.
@@ -5288,6 +5291,12 @@ WorkerPrivate::RunBeforeNextEvent(nsIRunnable* aRunnable)
   // subtract one from the recursion level if we have one.
   preemptingRunnableInfo->mRecursionDepth =
     recursionDepth ? recursionDepth - 1 : 0;
+
+  // If this operation is scheduled by a promise, the recursionDepth is
+  // already been decremented.
+  if (mPerformingMicroTasks) {
+    ++preemptingRunnableInfo->mRecursionDepth;
+  }
 
   // Ensure that we have a pending event so that the runnable will be guaranteed
   // to run.

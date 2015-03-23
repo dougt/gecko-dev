@@ -869,6 +869,7 @@ class WorkerPrivate : public WorkerPrivateParent<WorkerPrivate>
   bool mIdleGCTimerRunning;
   bool mWorkerScriptExecutedSuccessfully;
   bool mPreferences[WORKERPREF_COUNT];
+  bool mPerformingMicroTasks;
   bool mOnLine;
 
 protected:

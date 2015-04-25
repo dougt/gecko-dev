@@ -4175,16 +4175,14 @@ pref("dom.mozContacts.enabled", false);
 pref("dom.mozAlarms.enabled", false);
 
 // Push
-
-#if !defined(MOZ_WIDGET_GONK) && !defined(MOZ_WIDGET_ANDROID)
-// Desktop prefs
 #ifdef RELEASE_BUILD
 pref("dom.push.enabled", false);
 #else
 pref("dom.push.enabled", true);
 #endif
-#else
-// Mobile prefs
+
+#ifdef defined(MOZ_WIDGET_ANDROID)
+// disable on android.
 pref("dom.push.enabled", false);
 #endif
 

@@ -57,6 +57,12 @@ PushNotificationService.prototype = {
   observe: function observe(subject, topic, data) {
     switch (topic) {
       case "app-startup":
+#ifdef MOZ_B2G
+        if (isParent) {
+          PushService.init();
+        }
+        break;
+#endif
         Services.obs.addObserver(this, "sessionstore-windows-restored", true);
         break;
       case "sessionstore-windows-restored":

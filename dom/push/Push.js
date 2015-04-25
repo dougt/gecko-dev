@@ -8,7 +8,6 @@
 let gDebuggingEnabled = true;
 
 function debug(s) {
-  if (gDebuggingEnabled)
     dump("-*- Push.js: " + s + "\n");
 }
 

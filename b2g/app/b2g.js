@@ -1092,3 +1092,15 @@ pref("dom.requestSync.enabled", true);
 
 // Resample touch events on b2g
 pref("gfx.touch.resample", true);
+
+
+
+// XXX EVIT DO NOT CHECKIN //
+// XXX EVIT DO NOT CHECKIN //
+// XXX EVIT DO NOT CHECKIN //
+// XXX EVIT DO NOT CHECKIN //
+// XXX EVIT DO NOT CHECKIN //
+pref("dom.push.debug", true);
+pref("dom.apps.developer_mode", true);
+pref("network.disable.ipc.security", true);
+

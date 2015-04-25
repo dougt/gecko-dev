@@ -4187,7 +4187,8 @@ pref("dom.push.enabled", false);
 #endif
 
 pref("dom.push.debug", false);
-pref("dom.push.serverURL", "wss://push.services.mozilla.com/");
+//pref("dom.push.serverURL", "wss://push.services.mozilla.com/");
+pref("dom.push.serverURL", "ws://localhost:8080");
 pref("dom.push.userAgentID", "");
 
 // Is the network connection allowed to be up?

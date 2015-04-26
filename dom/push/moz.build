@@ -4,11 +4,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_COMPONENTS += [
-    'Push.js',
     'Push.manifest',
 ]
 
 EXTRA_PP_COMPONENTS += [
+    'Push.js',
     'PushNotificationService.js',
 ]
 

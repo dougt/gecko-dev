@@ -23,11 +23,12 @@ Cu.import("resource://gre/modules/AppsUtils.jsm");
 
 const PUSH_SUBSCRIPTION_CID = Components.ID("{CA86B665-BEDA-4212-8D0F-5C9F65270B58}");
 
-function PushSubscription(pushEndpoint, scope, pageURL) {
+function PushSubscription(pushEndpoint, scope, pageURL, manifestURL) {
   debug("PushSubscription Constructor");
   this._pushEndpoint = pushEndpoint;
   this._scope = scope;
   this._pageURL = pageURL;
+  this._manifestURL = manifestURL;
 }
 
 PushSubscription.prototype = {
@@ -53,10 +54,11 @@ PushSubscription.prototype = {
                    .getService(Ci.nsISyncMessageSender);
   },
 
-  __init: function(endpoint, scope, pageURL) {
+  __init: function(endpoint, scope, pageURL, manifestURL) {
     this._pushEndpoint = endpoint;
     this._scope = scope;
     this._pageURL = pageURL;
+    this._manifestURL = manifestURL;
   },
 
   get endpoint() {
@@ -77,6 +79,7 @@ PushSubscription.prototype = {
 
       this._cpmm.sendAsyncMessage("Push:Unregister", {
                                   pageURL: this._pageURL,
+                                  manifestURL: this._manifestURL,
                                   scope: this._scope,
                                   pushEndpoint: this._pushEndpoint,
                                   requestID: resolverId
@@ -138,8 +141,17 @@ Push.prototype = {
     gDebuggingEnabled = Services.prefs.getBoolPref("dom.push.debug");
     debug("init()");
 
+#ifdef MOZ_B2G
+    let principal = aWindow.document.nodePrincipal;
+    let appsService = Cc["@mozilla.org/AppsService;1"].getService(Ci.nsIAppsService);
+    this._manifestURL = appsService.getManifestURLByLocalId(principal.appId);
+#endif
+
     this._pageURL = aWindow.document.nodePrincipal.URI;
     this._window = aWindow;
+
+      debug("pageURL: " + this._pageURL);
+      debug("manifestURL " + this._manifestURL);
 
     this.initDOMRequestHelper(aWindow, [
       "PushService:Register:OK",
@@ -226,7 +238,8 @@ Push.prototype = {
       {
         let subscription = new this._window.PushSubscription(json.pushEndpoint,
                                                              this._scope,
-                                                             this._pageURL.spec);
+                                                             this._pageURL.spec,
+                                                             this._manifestURL);
         resolver.resolve(subscription);
         break;
       }
@@ -238,7 +251,9 @@ Push.prototype = {
         let subscription = null;
         try {
           subscription = new this._window.PushSubscription(json.registration.pushEndpoint,
-                                                          this._scope, this._pageURL.spec);
+                                                           this._scope,
+                                                           this._pageURL.spec,
+                                                           this._manifestURL);
         } catch(error) {
         }
         resolver.resolve(subscription);
@@ -261,6 +276,7 @@ Push.prototype = {
         function() {
           this._cpmm.sendAsyncMessage("Push:Register", {
                                       pageURL: this._pageURL.spec,
+                                      manifestURL: this._manifestURL,
                                       scope: this._scope,
                                       requestID: resolverId
                                     });
@@ -285,6 +301,7 @@ Push.prototype = {
         function() {
           this._cpmm.sendAsyncMessage("Push:Registration", {
                                       pageURL: this._pageURL.spec,
+                                      manifestURL: this._manifestURL,
                                       scope: this._scope,
                                       requestID: resolverId
                                     });

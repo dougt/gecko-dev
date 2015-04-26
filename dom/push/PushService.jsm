@@ -1416,9 +1416,19 @@ this.PushService = {
       scope: aPushRecord.scope
     };
 
+
+    // todo - maybe the idea could be to modify this method so that it only
+    // sends the event to the CHROME side of the application?
+
+    let messenger = Cc["@mozilla.org/system-message-internal;1"]
+                      .getService(Ci.nsISystemMessagesInternal);
+    messenger.sendMessage('push', "", null, manifestURI);
+
+/*
     let globalMM = Cc['@mozilla.org/globalmessagemanager;1']
                  .getService(Ci.nsIMessageListenerManager);
     globalMM.broadcastAsyncMessage('push', data);
+*/
   },
 
   _updatePushRecord: function(aPushRecord) {

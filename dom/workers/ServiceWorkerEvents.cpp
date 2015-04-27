@@ -372,30 +372,45 @@ NS_IMPL_ISUPPORTS0(PushMessageData);
 
 
 void
-PushMessageData::Json(JSContext* cx, JS::MutableHandle<JSObject*> aRetval)
+PushMessageData::Json(JSContext* cx, JS::MutableHandle<JSObject*> aRetval, ErrorResult& aRv)
 {
   //todo bug 1149195.  Don't be lazy.
    NS_ABORT();
 }
 
 void
-PushMessageData::Text(nsAString& aData)
+PushMessageData::Text(nsAString& aData, ErrorResult& aRv)
 {
   aData = mData;
 }
 
 void
-PushMessageData::ArrayBuffer(JSContext* cx, JS::MutableHandle<JSObject*> aRetval)
+PushMessageData::ArrayBuffer(JSContext* cx, JS::MutableHandle<JSObject*> aRetval, ErrorResult& aRv)
 {
-  //todo bug 1149195.  Don't be lazy.
-   NS_ABORT();
+  // todo. mData.Length is the number of uint16 char?
+  mozilla::UniquePtr<uint8_t[], JS::FreePolicy> data(js_pod_malloc<uint8_t>(mData.Length()));
+  if (!data) {
+    aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
+    return;
+  }
+
+  memcpy(data.get(), mData.get(), mData.Length());
+  JSObject* arrayBuffer = JS_NewArrayBufferWithContents(cx, mData.Length(), data.get());
+  data.release();
+
+  if (!arrayBuffer) {
+    aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
+    return;
+  }
+
+  aRetval.set(arrayBuffer);
 }
 
 mozilla::dom::File*
-PushMessageData::Blob()
+PushMessageData::Blob(ErrorResult& aRv)
 {
   //todo bug 1149195.  Don't be lazy.
-  NS_ABORT();
+  aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
   return nullptr;
 }
 

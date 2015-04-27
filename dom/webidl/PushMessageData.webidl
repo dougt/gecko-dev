@@ -10,8 +10,15 @@
 [Exposed=ServiceWorker]
 interface PushMessageData
 {
+    [Throws]
     ArrayBuffer arrayBuffer();
+    
+    [Throws]
     Blob        blob();
+    
+    [Throws]
     object      json();
+    
+    [Throws]
     USVString   text();
 };

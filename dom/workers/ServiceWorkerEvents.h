@@ -172,10 +172,10 @@ public:
     return nullptr;
   }
 
-  void Json(JSContext* cx, JS::MutableHandle<JSObject*> aRetval);
-  void Text(nsAString& aData);
-  void ArrayBuffer(JSContext* cx, JS::MutableHandle<JSObject*> aRetval);
-  mozilla::dom::File* Blob();
+  void Json(JSContext* cx, JS::MutableHandle<JSObject*> aRetval, ErrorResult& aRv);
+  void Text(nsAString& aData, ErrorResult& aRv);
+  void ArrayBuffer(JSContext* cx, JS::MutableHandle<JSObject*> aRetval, ErrorResult& aRv);
+  mozilla::dom::File* Blob(ErrorResult& aRv);
 
   explicit PushMessageData(const nsAString& aData);
 private:

@@ -119,10 +119,20 @@ function display(info) {
   createItem(bundle.GetStringFromName('activeCacheName'), info.activeCacheName);
   createItem(bundle.GetStringFromName('waitingCacheName'), info.waitingCacheName);
 
-  let pushItem = createItem(bundle.GetStringFromName('pushEndpoint'), bundle.GetStringFromName('waiting'));
+  let pushItem = createItem(bundle.GetStringFromName('pushEndpoint'), bundle.GetStringFromName('waiting'), true);
+  let pushItemTime = createItem(bundle.GetStringFromName('pushLastTime'), bundle.GetStringFromName('waiting'));
+  let pushItemCount = createItem(bundle.GetStringFromName('pushEventCount'), bundle.GetStringFromName('waiting'));
+
   PushNotificationService.registration(info.scope).then(
     pushRecord => {
-      pushItem.data = JSON.stringify(pushRecord);
+
+      let newDate = new Date();
+      newDate.setTime(pushRecord.lastPush);
+      let dateString = newDate.toUTCString();
+
+      pushItem.data = pushRecord.pushEndpoint;
+      pushItemTime.data = dateString;
+      pushItemCount.data = pushRecord.pushCount;
     },
     error => {
       dump("about:serviceworkers - push registration failed\n");

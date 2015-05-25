@@ -276,19 +276,11 @@ Push.prototype = {
 
       let resolverId = this.getPromiseResolverId({ resolve: resolve, reject: reject });
 
-      this.askPermission(
-        function() {
-          this._cpmm.sendAsyncMessage("Push:Registration", {
-                                      pageURL: this._pageURL.spec,
-                                      scope: this._scope,
-                                      requestID: resolverId
-                                    });
-        }.bind(this),
-
-        function() {
-          reject("PermissionDeniedError");
-        }
-      );
+      this._cpmm.sendAsyncMessage("Push:Registration", {
+                                   pageURL: this._pageURL.spec,
+                                   scope: this._scope,
+                                   requestID: resolverId
+                                 });
     }.bind(this));
     return p;
   },

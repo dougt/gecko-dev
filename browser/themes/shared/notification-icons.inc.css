@@ -141,6 +141,10 @@
   list-style-image: url(chrome://browser/skin/Geolocation-16.png);
 }
 
+#push-notification-icon {
+  list-style-image: url(chrome://browser/skin/push-notification-icon.svg);
+}
+
 #addons-notification-icon {
   list-style-image: url(chrome://browser/skin/addons/addon-install-anchor.svg#default);
 }

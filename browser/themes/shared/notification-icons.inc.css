@@ -15,7 +15,7 @@
 }
 
 .popup-notification-icon[popupid="push"] {
-  list-style-image: url(chrome://browser/skin/Push-64.png);
+  list-style-image: url(chrome://browser/skin/push-icon.svg);
 }
 
 .popup-notification-icon[popupid="xpinstall-disabled"],
@@ -139,10 +139,6 @@
 .geo-notification-icon,
 #geo-notification-icon {
   list-style-image: url(chrome://browser/skin/Geolocation-16.png);
-}
-
-#push-notification-icon {
-  list-style-image: url(chrome://browser/skin/Push-16.png);
 }
 
 #addons-notification-icon {
@@ -330,10 +326,6 @@
     list-style-image: url(chrome://browser/skin/Geolocation-16@2x.png);
   }
 
-  #push-notification-icon {
-    list-style-image: url(chrome://browser/skin/Push-16@2x.png);
-  }
-
   .indexedDB-notification-icon,
   #indexedDB-notification-icon {
     list-style-image: url(chrome://global/skin/icons/question-32.png);
@@ -435,10 +427,6 @@
 
   .popup-notification-icon[popupid="geolocation"] {
     list-style-image: url(chrome://browser/skin/Geolocation-64@2x.png);
-  }
-
-  .popup-notification-icon[popupid="push"] {
-    list-style-image: url(chrome://browser/skin/Push-64@2x.png);
   }
 
   .popup-notification-icon[popupid="web-notifications"] {
